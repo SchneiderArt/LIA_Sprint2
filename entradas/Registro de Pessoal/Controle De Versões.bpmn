@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="_2026062404962" targetNamespace="http://www.bizagi.com/definitions/_2026062404962" xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL">
+  <process id="Id_67116eb9-217d-4380-ae27-1ce9af69ee44" name="Processo principal">
+    <documentation />
+    <laneSet id="Id_00afba8e-f0a8-4a36-9b64-cfa8d0347297" />
+    <dataObject id="Id_0c670ba6-160b-4bf8-af05-75ff7e78a386" name="Controle de Versões">
+      <documentation />
+      <extensionElements>
+        <bizagi:BizagiExtensions xmlns:bizagi="http://www.bizagi.com/bpmn20">
+          <bizagi:BizagiProperties>
+            <bizagi:BizagiProperty name="bgColor" value="#F0F0F0" />
+            <bizagi:BizagiProperty name="borderColor" value="#666666" />
+            <bizagi:BizagiProperty name="textColor" value="#000000" />
+            <bizagi:BizagiProperty name="textBackgroundColor" value="Transparent" />
+            <bizagi:BizagiProperty name="textDirection" value="" />
+          </bizagi:BizagiProperties>
+        </bizagi:BizagiExtensions>
+      </extensionElements>
+      <dataState id="Id_cf84bc88-4998-4666-a335-a536fcafa9a2" />
+    </dataObject>
+  </process>
+  <collaboration id="Id_a73d85d6-b826-4732-98e1-f713c8b85fcc" name="Controle De Versões">
+    <documentation />
+    <participant id="Id_a75215c0-46d9-4316-af35-cba3b1756c69" name="Processo principal" processRef="Id_67116eb9-217d-4380-ae27-1ce9af69ee44">
+      <documentation />
+      <extensionElements>
+        <bizagi:BizagiExtensions xmlns:bizagi="http://www.bizagi.com/bpmn20">
+          <bizagi:BizagiProperties>
+            <bizagi:BizagiProperty name="bgColor" value="#FFFFFF" />
+            <bizagi:BizagiProperty name="borderColor" value="#000000" />
+            <bizagi:BizagiProperty name="textColor" value="#000000" />
+            <bizagi:BizagiProperty name="textBackgroundColor" value="Transparent" />
+            <bizagi:BizagiProperty name="textDirection" value="" />
+            <bizagi:BizagiProperty name="isMainParticipant" />
+          </bizagi:BizagiProperties>
+        </bizagi:BizagiExtensions>
+      </extensionElements>
+    </participant>
+  </collaboration>
+  <BPMNDiagram id="Diagram_88026bfa-74d0-4755-b2a9-e2d098ac7fd8" xmlns="http://www.omg.org/spec/BPMN/20100524/DI">
+    <BPMNPlane id="DiagramElement_5cfe5a70-d520-4767-b619-4ca54559c406" bpmnElement="Id_a73d85d6-b826-4732-98e1-f713c8b85fcc">
+      <extension xmlns="http://www.omg.org/spec/DD/20100524/DI" />
+      <BPMNShape id="DiagramElement_7aa56967-29f0-4bbb-b1cc-2ed01ff81975" bpmnElement="Id_a75215c0-46d9-4316-af35-cba3b1756c69" isHorizontal="true">
+        <extension xmlns="http://www.omg.org/spec/DD/20100524/DI" />
+        <Bounds x="30" y="30" width="700" height="350" xmlns="http://www.omg.org/spec/DD/20100524/DC" />
+        <BPMNLabel id="DiagramElement_aec9ce3f-4527-4067-8141-31a0537b760f" labelStyle="Style_292df634-acb6-403f-8cfa-542d0c3aceb3">
+          <extension xmlns="http://www.omg.org/spec/DD/20100524/DI" />
+          <Bounds x="0" y="0" width="0" height="0" xmlns="http://www.omg.org/spec/DD/20100524/DC" />
+        </BPMNLabel>
+      </BPMNShape>
+      <BPMNShape id="DiagramElement_b96de864-5aa2-443f-a410-b05cca6f75d2" bpmnElement="Id_0c670ba6-160b-4bf8-af05-75ff7e78a386">
+        <extension xmlns="http://www.omg.org/spec/DD/20100524/DI" />
+        <Bounds x="61" y="54" width="90" height="50" xmlns="http://www.omg.org/spec/DD/20100524/DC" />
+        <BPMNLabel id="DiagramElement_18347948-9f37-47b4-aabf-8ea75515c93e" labelStyle="Style_53b0a56d-de9c-4576-8553-9a4990295a5b">
+          <extension xmlns="http://www.omg.org/spec/DD/20100524/DI" />
+          <Bounds x="68" y="60" width="75" height="45" xmlns="http://www.omg.org/spec/DD/20100524/DC" />
+        </BPMNLabel>
+      </BPMNShape>
+    </BPMNPlane>
+    <BPMNLabelStyle id="Style_292df634-acb6-403f-8cfa-542d0c3aceb3">
+      <Font name="Segoe UI" size="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" xmlns="http://www.omg.org/spec/DD/20100524/DC" />
+    </BPMNLabelStyle>
+    <BPMNLabelStyle id="Style_53b0a56d-de9c-4576-8553-9a4990295a5b">
+      <Font name="Segoe UI" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" xmlns="http://www.omg.org/spec/DD/20100524/DC" />
+    </BPMNLabelStyle>
+  </BPMNDiagram>
+</definitions>

@@ -1,0 +1,25 @@
+# Ambiente — nunca commitar a chave do OpenRouter (seção 11)
+.env
+
+# Cache Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Ambientes virtuais
+venv/
+.venv/
+env/
+
+# Saídas geradas (não versionar — são geradas pelo pipeline)
+saidas/
+
+# IDEs
+.vscode/
+.idea/
+*.code-workspace
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
