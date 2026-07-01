@@ -39,20 +39,33 @@ def critic_review_node(estado: EstadoGrafo) -> EstadoGrafo:
         )
         return estado
 
-    if estado.processo_json is None or estado.documento_pdf_json is None:
+    # Verifica se há contexto de processo disponível em algum dos dois pipelines
+    pipeline_json    = estado.processo_json is not None and estado.documento_pdf_json is not None
+    pipeline_natural = estado.narrativa_bpmn is not None or estado.pdf_texto_extraido is not None
+
+    if not pipeline_json and not pipeline_natural:
         estado.erros.append(
-            "critic_review: processo_json ou documento_pdf_json ausente no estado."
+            "critic_review: nenhum contexto de processo disponível no estado. "
+            "Verifique se parse_bpmn_to_json/extract_pdf_to_json (Entrega 2) ou "
+            "bpmn_to_natural_language/extract_pdf_text (Entrega 1) executaram."
         )
         return estado
 
     candidatos_para_revisao = estado.candidatos if estado.candidatos else []
 
-    # Montar contexto para o nó de crítica (seção 10 e critic_review.md)
-    contexto_critica = montar_contexto_critica(
-        estado.processo_json,
-        estado.documento_pdf_json,
-        candidatos_para_revisao,
-    )
+    # Montar contexto adaptado ao pipeline ativo
+    if pipeline_json:
+        contexto_critica = montar_contexto_critica(
+            candidatos_para_revisao,
+            processo_json=estado.processo_json,
+            documento_pdf_json=estado.documento_pdf_json,
+        )
+    else:
+        contexto_critica = montar_contexto_critica(
+            candidatos_para_revisao,
+            narrativa_bpmn=estado.narrativa_bpmn,
+            pdf_texto_extraido=estado.pdf_texto_extraido,
+        )
 
     # Se não há candidatos validados ainda, injetar o raw no contexto
     if not candidatos_para_revisao:

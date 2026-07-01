@@ -105,49 +105,41 @@ def montar_contexto_json(
 
 
 def montar_contexto_critica(
-    processo_json: Any,
-    documento_pdf_json: Any,
     candidatos: list[Any],
+    processo_json: Any = None,
+    documento_pdf_json: Any = None,
+    narrativa_bpmn: str | None = None,
+    pdf_texto_extraido: str | None = None,
 ) -> str:
     """
-    Monta o contexto de usuário para o nó critic_review.
-    Inclui ProcessoJSON, DocumentoPDFJSON e a lista de candidatos gerados,
-    conforme o formato especificado no arquivo critic_review.md.
+    Monta o contexto para o nó critic_review.
 
-    Args:
-        processo_json: instância ou dict de ProcessoJSON.
-        documento_pdf_json: instância ou dict de DocumentoPDFJSON.
-        candidatos: lista de instâncias ou dicts de AutomationCandidateJSON.
-
-    Returns:
-        String de contexto formatada com as três tags do prompt.
+    Aceita contexto de qualquer pipeline:
+      - Entrega 2 (JSON):    processo_json + documento_pdf_json
+      - Entrega 1 (natural): narrativa_bpmn + pdf_texto_extraido
     """
-    if hasattr(processo_json, "model_dump"):
-        proc_dict = processo_json.model_dump()
+    cands_list = [
+        c.model_dump() if hasattr(c, "model_dump") else dict(c)
+        for c in candidatos
+    ]
+    cands_str = json.dumps(cands_list, ensure_ascii=False, indent=2)
+
+    if processo_json is not None and documento_pdf_json is not None:
+        proc_dict = processo_json.model_dump() if hasattr(processo_json, "model_dump") else dict(processo_json)
+        doc_dict  = documento_pdf_json.model_dump() if hasattr(documento_pdf_json, "model_dump") else dict(documento_pdf_json)
+        contexto_processo = (
+            f"[PROCESSO_JSON]\n{json.dumps(proc_dict, ensure_ascii=False, indent=2)}\n[/PROCESSO_JSON]\n\n"
+            f"[DOCUMENTO_PDF_JSON]\n{json.dumps(doc_dict, ensure_ascii=False, indent=2)}\n[/DOCUMENTO_PDF_JSON]"
+        )
     else:
-        proc_dict = dict(processo_json)
+        narrativa  = narrativa_bpmn or ""
+        texto_pdf  = pdf_texto_extraido or ""
+        contexto_processo = (
+            f"[NARRATIVA_BPMN]\n{narrativa}\n[/NARRATIVA_BPMN]\n\n"
+            f"[TEXTO_PDF]\n{texto_pdf}\n[/TEXTO_PDF]"
+        )
 
-    if hasattr(documento_pdf_json, "model_dump"):
-        doc_dict = documento_pdf_json.model_dump()
-    else:
-        doc_dict = dict(documento_pdf_json)
-
-    cands_list = []
-    for c in candidatos:
-        if hasattr(c, "model_dump"):
-            cands_list.append(c.model_dump())
-        else:
-            cands_list.append(dict(c))
-
-    proc_str  = json.dumps(proc_dict,   ensure_ascii=False, indent=2)
-    doc_str   = json.dumps(doc_dict,    ensure_ascii=False, indent=2)
-    cands_str = json.dumps(cands_list,  ensure_ascii=False, indent=2)
-
-    return (
-        f"[PROCESSO_JSON]\n{proc_str}\n[/PROCESSO_JSON]\n\n"
-        f"[DOCUMENTO_PDF_JSON]\n{doc_str}\n[/DOCUMENTO_PDF_JSON]\n\n"
-        f"[CANDIDATOS]\n{cands_str}\n[/CANDIDATOS]"
-    )
+    return f"{contexto_processo}\n\n[CANDIDATOS]\n{cands_str}\n[/CANDIDATOS]"
 
 
 def montar_prompt_reparo(

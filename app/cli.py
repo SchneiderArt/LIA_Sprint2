@@ -156,15 +156,17 @@ exemplos:
 # Execução do pipeline JSON (Entrega 2)
 # ---------------------------------------------------------------------------
 
-def _executar_json(args: argparse.Namespace, run_id: str) -> int:
-    """
-    Executa o pipeline da Entrega 2 (JSON estruturado).
-    Retorna 0 em sucesso, 1 em erro.
-    """
+def _executar(args: argparse.Namespace, run_id: str, pipeline: str) -> int:
+    """Executa o pipeline escolhido via executar_pipeline."""
     from app.graph import executar_pipeline
 
+    labels = {
+        "json":    "JSON estruturado (Entrega 2)",
+        "natural": "Linguagem natural (Entrega 1)",
+        "both":    "Entrega 1 + Entrega 2 (comparativo)",
+    }
     print()
-    print("  Pipeline: JSON estruturado (Entrega 2)")
+    print(f"  Pipeline: {labels[pipeline]}")
     print("  (pode levar 30–120 segundos dependendo do LLM)\n")
 
     try:
@@ -172,46 +174,26 @@ def _executar_json(args: argparse.Namespace, run_id: str) -> int:
             caminho_bpmn=args.bpmn,
             caminho_pdf=args.pdf,
             run_id=run_id,
+            pipeline=pipeline,
         )
     except Exception as exc:
         print(f"\n❌ Erro fatal no pipeline: {exc}")
         return 1
 
-    _imprimir_resultado(estado, "json")
+    _imprimir_resultado(estado, pipeline)
     return 0 if not estado.erros else 1
 
 
+def _executar_json(args: argparse.Namespace, run_id: str) -> int:
+    return _executar(args, run_id, "json")
+
+
 def _executar_natural(args: argparse.Namespace, run_id: str) -> int:
-    """
-    Placeholder para o pipeline da Entrega 1 (linguagem natural).
-    Será implementado pelo responsável pela Entrega 1.
-    """
-    print()
-    print("  ⚠  Pipeline 'natural' (Entrega 1) ainda não implementado nesta branch.")
-    print("     Execute com --pipeline json para usar a Entrega 2.")
-    return 1
+    return _executar(args, run_id, "natural")
 
 
 def _executar_both(args: argparse.Namespace, run_id: str) -> int:
-    """
-    Executa os dois pipelines em sequência e exibe comparação.
-    O modo 'both' gera intermediários e documento final para cada abordagem,
-    conforme seção 8.1 do documento da sprint.
-    """
-    print()
-    print("  Pipeline: both (Entrega 2 JSON + Entrega 1 Natural)")
-    print()
-
-    # Entrega 2 — JSON
-    print("  ── Entrega 2: JSON estruturado ─────────────────────")
-    codigo_json = _executar_json(args, f"{run_id}-json")
-
-    # Entrega 1 — Natural (placeholder)
-    print()
-    print("  ── Entrega 1: Linguagem natural ────────────────────")
-    codigo_natural = _executar_natural(args, f"{run_id}-natural")
-
-    return 0 if codigo_json == 0 else 1
+    return _executar(args, run_id, "both")
 
 
 # ---------------------------------------------------------------------------

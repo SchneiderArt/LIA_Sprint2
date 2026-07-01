@@ -1,13 +1,10 @@
 """
 Nó LangGraph: generate_candidates
-Sprint 2, Entrega 2
+Sprint 2 — compartilhado entre Entrega 1 e Entrega 2
 
-Responsabilidades (conforme documento da sprint, seções 4, 7.1 e 11):
-  - Chamar o LLM via OpenRouter (cliente centralizado em app/openrouter.py)
-  - Usar o system prompt de system_automation_analyst.md
-  - Usar o user prompt de generate_automation_candidates.md
-  - A chave OpenRouter vem do .env — nunca hardcoded (seção 11)
-  - Armazenar a saída bruta em estado.candidatos_raw para validação posterior
+Aceita o contexto de qualquer pipeline:
+  - Entrega 2 (JSON):    lê estado.prompt_usado       (ProcessoJSON + DocumentoPDFJSON)
+  - Entrega 1 (natural): lê estado.prompt_usado_natural (narrativa BPMN + texto PDF)
 """
 
 from __future__ import annotations
@@ -22,21 +19,14 @@ logger = logging.getLogger(__name__)
 
 
 def generate_candidates(estado: EstadoGrafo) -> EstadoGrafo:
-    """
-    Nó LangGraph: chama o LLM via OpenRouter para gerar automações candidatas.
-
-    Usa:
-      - system_automation_analyst.md como system prompt
-      - generate_automation_candidates.md como instrução de geração
-      - estado.prompt_usado como contexto (ProcessoJSON + DocumentoPDFJSON)
-
-    Armazena a saída bruta do LLM em estado.candidatos_raw para que
-    o nó validate_schema possa validá-la com Pydantic v2.
-    """
-    if not estado.prompt_usado:
+    """Nó LangGraph: chama o LLM para gerar automações candidatas."""
+    # Aceita contexto da Entrega 2 (prompt_usado) ou da Entrega 1 (prompt_usado_natural)
+    contexto = estado.prompt_usado or estado.prompt_usado_natural
+    if not contexto:
         estado.erros.append(
-            "generate_candidates: prompt_usado ausente no estado. "
-            "Verifique se o nó build_prompt_context executou com sucesso."
+            "generate_candidates: nenhum contexto disponível no estado "
+            "(prompt_usado e prompt_usado_natural estão ausentes). "
+            "Verifique se build_prompt_context ou build_prompt_context_natural executou."
         )
         return estado
 
@@ -48,8 +38,7 @@ def generate_candidates(estado: EstadoGrafo) -> EstadoGrafo:
         estado.erros.append(f"generate_candidates: erro ao carregar prompt — {exc}")
         return estado
 
-    # O user prompt combina a instrução de geração com o contexto JSON
-    user_prompt = f"{instrucao_geracao}\n\n{estado.prompt_usado}"
+    user_prompt = f"{instrucao_geracao}\n\n{contexto}"
 
     try:
         saida_bruta = chamar_llm(

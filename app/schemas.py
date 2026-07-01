@@ -429,6 +429,10 @@ class EstadoGrafo(BaseModel):
 
     run_id: str = Field(description="ID da execução corrente.")
 
+    # Prefixo usado pelo render_outputs para nomear os artefatos de saída.
+    # Em modo "both", cada grafo usa um prefixo diferente para não sobrescrever.
+    nome_saida: str = Field(default="documento_final")
+
     # Caminhos dos arquivos de entrada
     caminho_bpmn: Optional[str] = Field(default=None)
     caminho_pdf: Optional[str] = Field(default=None)
@@ -436,6 +440,12 @@ class EstadoGrafo(BaseModel):
     # Intermediários da Entrega 2
     processo_json: Optional[ProcessoJSON] = Field(default=None)
     documento_pdf_json: Optional[DocumentoPDFJSON] = Field(default=None)
+
+    # Intermediários da Entrega 1
+    bpmn_normalizado_xml: Optional[str] = Field(default=None)
+    pdf_texto_extraido: Optional[str] = Field(default=None)
+    narrativa_bpmn: Optional[str] = Field(default=None)
+    prompt_usado_natural: Optional[str] = Field(default=None)
 
     # Prompt montado para o LLM
     prompt_usado: Optional[str] = Field(default=None)
@@ -447,7 +457,7 @@ class EstadoGrafo(BaseModel):
     )
     candidatos: list[AutomationCandidateJSON] = Field(
         default_factory=list,
-        description="Automações candidatas validadas pelo Pydantic v2."
+        description="Automações candidatas validadas. No modo both: natural primeiro, json depois."
     )
 
     # Controle de validação e reparo

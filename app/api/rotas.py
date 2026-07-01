@@ -61,11 +61,6 @@ async def analisar_processo(
     )
 
     avisos: list[str] = []
-    if pipeline == "natural":
-        avisos.append(
-            "Pipeline 'natural' (Entrega 1) ainda não implementado; "
-            "executado o pipeline JSON (Entrega 2)."
-        )
 
     # 3. Roda o mesmo motor da CLI. Import tardio de propósito: não acopla o boot
     #    da API ao carregamento do grafo e suas dependências pesadas.
@@ -76,6 +71,7 @@ async def analisar_processo(
             caminho_bpmn=caminho_bpmn,
             caminho_pdf=caminho_pdf,
             run_id=run_id,
+            pipeline=pipeline,
         )
     except Exception as e:
         logger.error("analisar_processo | run=%s | erro: %s", run_id, e)
@@ -90,13 +86,23 @@ async def analisar_processo(
     artefatos = armazenamento.realocar_artefatos(run_id, estado.artefatos)
     status = RunStatus.ERRO if estado.erros else RunStatus.CONCLUIDO
 
+    if pipeline == "both":
+        quantidade_automacoes = {
+            "json":    len(estado.candidatos_json),
+            "natural": len(estado.candidatos_natural),
+        }
+    elif pipeline == "natural":
+        quantidade_automacoes = {"natural": len(estado.candidatos)}
+    else:
+        quantidade_automacoes = {"json": len(estado.candidatos)}
+
     meta = RunMetadata(
         run_id=run_id,
         status=status,
         pipeline=pipeline,
         avisos=avisos + estado.avisos,
         erros=estado.erros,
-        quantidade_automacoes={"json": len(estado.candidatos)},
+        quantidade_automacoes=quantidade_automacoes,
         artefatos=artefatos,
     )
     _execucoes[run_id] = meta

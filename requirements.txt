@@ -1,44 +1,35 @@
-# Sprint 2 — Entrega 2
+# Sprint 2 — Entrega 1 + Entrega 2
 # Instalar com: pip install -r requirements.txt
+# Compatível com Python 3.12+ (sem versões pinadas para garantir wheels disponíveis)
 
 # API e servidor
-fastapi==0.115.0
-uvicorn[standard]==0.30.6
-python-multipart==0.0.9
+fastapi
+uvicorn[standard]
+python-multipart
 
 # Orquestração de agente
-langgraph==1.2.6
+langgraph
 
 # LLM
-httpx==0.27.2
-openai==1.51.0          # cliente opcional (OpenRouter é compatível)
+openai
 
 # Schemas e validação
-pydantic==2.9.2
+pydantic
 
 # BPMN / XML seguro
-defusedxml==0.7.1
-lxml==5.3.0
+defusedxml
+lxml
 
 # Grafo de processo
-networkx==3.3
+networkx
 
 # PDF
-pymupdf==1.24.11        # fitz
-
-# Dados tabulares
-pandas==2.2.3
-openpyxl==3.1.5
-
-# Documento final
-jinja2==3.1.4
-reportlab==4.2.5
-weasyprint==62.3
-python-docx==1.1.2
+pymupdf
+reportlab
 
 # Ambiente
-python-dotenv==1.0.1
+python-dotenv
 
 # Qualidade
-pytest==8.3.3
-ruff==0.6.9
+pytest
+ruff
