@@ -15,6 +15,7 @@ from pathlib import Path
 import fitz  # PyMuPDF
 
 from app.schemas import EstadoGrafo
+from app.utils import config
 
 logger = logging.getLogger(__name__)
 
@@ -89,8 +90,7 @@ def extract_pdf_text(estado: EstadoGrafo) -> EstadoGrafo:
 
     estado.avisos.extend(avisos)
 
-    saida_dir = Path("saidas/intermediarios")
-    saida_dir.mkdir(parents=True, exist_ok=True)
+    saida_dir = config.garantir(config.pasta_intermediarios(estado.run_id, config.NATURAL))
     saida_path = saida_dir / "pdf_texto_extraido.txt"
     try:
         saida_path.write_text(texto, encoding="utf-8")

@@ -45,6 +45,7 @@ from app.nodes.render_outputs_natural import render_outputs_natural
 from app.nodes.render_outputs_both import render_outputs_both
 from app.nodes.validate_schema import repair_output, validate_schema
 from app.schemas import EstadoGrafo
+from app.utils import config
 
 load_dotenv()
 
@@ -280,46 +281,48 @@ def executar_pipeline(
         grafo_natural = construir_grafo_natural()
 
         # Cada grafo usa nome_saida próprio para não sobrescrever o do outro
+        # Os dois grafos usam o MESMO run_id — a separação é por subpasta de
+        # abordagem (artefatos/json vs artefatos/natural), não por run_id.
         estado_json = EstadoGrafo.model_validate(
             grafo_json.invoke(
                 EstadoGrafo(
                     run_id=run_id,
                     caminho_bpmn=caminho_bpmn,
                     caminho_pdf=caminho_pdf,
-                    nome_saida="documento_final_json",
                 ).model_dump()
             )
         )
         estado_natural = EstadoGrafo.model_validate(
             grafo_natural.invoke(
                 EstadoGrafo(
-                    run_id=run_id + "-natural",
+                    run_id=run_id,
                     caminho_bpmn=caminho_bpmn,
                     caminho_pdf=caminho_pdf,
-                    nome_saida="documento_final_natural",
                 ).model_dump()
             )
         )
 
-        # Gera o documento comparativo unificado
+        # Gera o documento comparativo unificado (grava em artefatos/comparativo/).
         render_outputs_both(estado_json, estado_natural)
 
-        # Estado final consolida metadados dos dois pipelines
-        estado_json.avisos  += estado_natural.avisos
-        estado_json.erros   += estado_natural.erros
-        estado_json.artefatos.update(estado_natural.artefatos)
-        estado_json.artefatos["documento_final_md"]  = str(Path("saidas") / "documento_final.md")
-        estado_json.artefatos["documento_final_pdf"] = str(Path("saidas") / "documento_final.pdf")
-        estado_json.artefatos["auditoria_json"]      = str(Path("saidas") / "auditoria_both.json")
-        # Preserva intermediários da Entrega 1 no estado final
+        # Estado final consolida os metadados dos dois pipelines.
+        estado_json.avisos += estado_natural.avisos
+        estado_json.erros  += estado_natural.erros
+        # Contagens por abordagem, para a API.
+        estado_json.candidatos_natural = estado_natural.candidatos
+        estado_json.candidatos_json    = estado_json.candidatos
+        # Preserva os intermediários da Entrega 1 no estado final.
         estado_json.bpmn_normalizado_xml = estado_natural.bpmn_normalizado_xml
         estado_json.pdf_texto_extraido   = estado_natural.pdf_texto_extraido
         estado_json.narrativa_bpmn       = estado_natural.narrativa_bpmn
         estado_json.prompt_usado_natural = estado_natural.prompt_usado_natural
+        # Mapa canônico de artefatos = o que existe de fato em saidas/<run_id>/artefatos/
+        # (json/, natural/ e comparativo/), lido do disco — sem colisão de chaves.
+        estado_json.artefatos = config.listar_artefatos(run_id)
 
         logger.info(
             "Pipeline 'both' concluído | run_id=%s | natural=%d | json=%d candidatos",
-            run_id, len(estado_natural.candidatos), len(estado_json.candidatos),
+            run_id, len(estado_natural.candidatos), len(estado_json.candidatos_json),
         )
         return estado_json
 

@@ -30,6 +30,7 @@ from pathlib import Path
 
 import fitz  # PyMuPDF
 
+from app.utils import config
 from app.schemas import DocumentoPDFJSON, EstadoGrafo, IndicadorJSON
 
 logger = logging.getLogger(__name__)
@@ -756,9 +757,8 @@ def extract_pdf_to_json(estado: EstadoGrafo) -> EstadoGrafo:
 
     estado.avisos.extend(avisos)
 
-    # Salvar intermediário em /saidas/intermediarios/pdf_estruturado.json
-    saida_dir = Path("saidas/intermediarios")
-    saida_dir.mkdir(parents=True, exist_ok=True)
+    # Salvar intermediário (Entrega 2 / JSON) — run-scoped via config
+    saida_dir = config.garantir(config.pasta_intermediarios(estado.run_id, config.JSON))
     saida_path = saida_dir / "pdf_estruturado.json"
 
     try:

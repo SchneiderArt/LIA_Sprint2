@@ -6,6 +6,10 @@ Subir localmente:
 
 Documentação interativa em http://127.0.0.1:8000/docs após subir o servidor.
 """
+
+from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import FastAPI
 
 from app.api.rotas import roteador

@@ -24,6 +24,7 @@ from typing import Any
 import defusedxml.ElementTree as ET
 import networkx as nx
 
+from app.utils import config
 from app.schemas import (
     EdgeJSON,
     EstadoGrafo,
@@ -465,9 +466,8 @@ def parse_bpmn_to_json(estado: EstadoGrafo) -> EstadoGrafo:
 
     estado.avisos.extend(avisos)
 
-    # Salvar intermediário
-    saida_dir = Path("saidas/intermediarios")
-    saida_dir.mkdir(parents=True, exist_ok=True)
+    # Salvar intermediário (Entrega 2 / JSON) — run-scoped via config
+    saida_dir = config.garantir(config.pasta_intermediarios(estado.run_id, config.JSON))
     saida_path = saida_dir / "bpmn_estruturado.json"
     try:
         with open(saida_path, "w", encoding="utf-8") as f:

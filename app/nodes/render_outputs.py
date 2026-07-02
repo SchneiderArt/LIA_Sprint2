@@ -22,6 +22,7 @@ from app.schemas import (
     EstadoGrafo,
     ProcessoJSON,
 )
+from app.utils import config
 
 logger = logging.getLogger(__name__)
 
@@ -267,12 +268,11 @@ def render_outputs(estado: EstadoGrafo) -> EstadoGrafo:
         )
         return estado
 
-    saida_dir = Path("saidas")
-    saida_dir.mkdir(parents=True, exist_ok=True)
+    # Artefatos finais (Entrega 2 / JSON) — run-scoped via config
+    saida_dir = config.garantir(config.pasta_artefatos_abordagem(estado.run_id, config.JSON))
 
     bpmn_nome = estado.artefatos.get("bpmn_nome", "processo.bpmn")
     pdf_nome  = estado.artefatos.get("pdf_nome",  "descritivo.pdf")
-    nome      = estado.nome_saida
 
     # Markdown
     try:
@@ -283,10 +283,10 @@ def render_outputs(estado: EstadoGrafo) -> EstadoGrafo:
             bpmn_nome,
             pdf_nome,
         )
-        md_path = saida_dir / f"{nome}.md"
+        md_path = saida_dir / config.NOME_DOC_MD
         md_path.write_text(markdown, encoding="utf-8")
         estado.artefatos["documento_final_md"] = str(md_path)
-        logger.info("%s.md salvo — %d chars", nome, len(markdown))
+        logger.info("%s salvo — %d chars", md_path, len(markdown))
     except Exception as exc:
         estado.erros.append(f"render_outputs: erro ao gerar Markdown — {exc}")
         return estado
@@ -294,7 +294,7 @@ def render_outputs(estado: EstadoGrafo) -> EstadoGrafo:
     # PDF
     try:
         from app.render_pdf import gerar_pdf
-        pdf_saida = saida_dir / f"{nome}.pdf"
+        pdf_saida = saida_dir / config.NOME_DOC_PDF
         gerar_pdf(
             caminho_markdown=md_path,
             caminho_pdf=pdf_saida,
@@ -302,7 +302,7 @@ def render_outputs(estado: EstadoGrafo) -> EstadoGrafo:
             unidade=estado.documento_pdf_json.unidade_responsavel,
         )
         estado.artefatos["documento_final_pdf"] = str(pdf_saida)
-        logger.info("%s.pdf salvo — %d bytes", nome, pdf_saida.stat().st_size)
+        logger.info("%s salvo — %d bytes", pdf_saida, pdf_saida.stat().st_size)
     except Exception as exc:
         estado.avisos.append(f"render_outputs: não foi possível gerar PDF — {exc}")
 
@@ -319,10 +319,10 @@ def render_outputs(estado: EstadoGrafo) -> EstadoGrafo:
             "artefatos":         estado.artefatos,
             "tentativas_reparo": estado.tentativas_reparo,
         }
-        audit_path = saida_dir / f"{nome}_auditoria.json"
+        audit_path = saida_dir / config.NOME_AUDITORIA
         audit_path.write_text(json.dumps(auditoria, ensure_ascii=False, indent=2), encoding="utf-8")
         estado.artefatos["auditoria_json"] = str(audit_path)
-        logger.info("%s_auditoria.json salvo.", nome)
+        logger.info("%s salvo.", audit_path)
     except Exception as exc:
         estado.erros.append(f"render_outputs: erro ao gerar JSON de auditoria — {exc}")
         return estado

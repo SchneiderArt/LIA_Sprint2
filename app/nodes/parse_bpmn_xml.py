@@ -31,6 +31,7 @@ import defusedxml.ElementTree as DET
 import xml.etree.ElementTree as ET
 
 from app.schemas import EstadoGrafo
+from app.utils import config
 
 logger = logging.getLogger(__name__)
 
@@ -285,8 +286,7 @@ def parse_bpmn_xml(estado: EstadoGrafo) -> EstadoGrafo:
 
     estado.avisos.extend(avisos)
 
-    saida_dir = Path("saidas/intermediarios")
-    saida_dir.mkdir(parents=True, exist_ok=True)
+    saida_dir = config.garantir(config.pasta_intermediarios(estado.run_id, config.NATURAL))
     saida_path = saida_dir / "bpmn_normalizado.xml"
     try:
         saida_path.write_text(xml_normalizado, encoding="utf-8")

@@ -16,6 +16,7 @@ from pathlib import Path
 from app.openrouter import chamar_llm
 from app.prompts import carregar_prompt
 from app.schemas import EstadoGrafo
+from app.utils import config
 
 logger = logging.getLogger(__name__)
 
@@ -61,8 +62,7 @@ def bpmn_to_natural_language(estado: EstadoGrafo) -> EstadoGrafo:
 
     estado.narrativa_bpmn = narrativa
 
-    saida_dir = Path("saidas/intermediarios")
-    saida_dir.mkdir(parents=True, exist_ok=True)
+    saida_dir = config.garantir(config.pasta_intermediarios(estado.run_id, config.NATURAL))
     saida_path = saida_dir / "narrativa_bpmn.txt"
     try:
         saida_path.write_text(narrativa, encoding="utf-8")

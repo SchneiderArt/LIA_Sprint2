@@ -19,6 +19,7 @@ import logging
 from pathlib import Path
 
 from app.schemas import EstadoGrafo
+from app.utils import config
 
 logger = logging.getLogger(__name__)
 
@@ -53,8 +54,7 @@ def build_prompt_context_natural(estado: EstadoGrafo) -> EstadoGrafo:
     estado.prompt_usado_natural = contexto
     logger.info("build_prompt_context_natural: contexto montado — %d chars", len(contexto))
 
-    saida_dir = Path("saidas/intermediarios")
-    saida_dir.mkdir(parents=True, exist_ok=True)
+    saida_dir = config.garantir(config.pasta_intermediarios(estado.run_id, config.NATURAL))
     saida_path = saida_dir / "prompt_usado_natural.txt"
     try:
         saida_path.write_text(contexto, encoding="utf-8")

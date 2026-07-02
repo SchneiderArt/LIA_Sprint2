@@ -459,6 +459,15 @@ class EstadoGrafo(BaseModel):
         default_factory=list,
         description="Automações candidatas validadas. No modo both: natural primeiro, json depois."
     )
+    # Preenchidos apenas no modo 'both', para a API contar automações por abordagem.
+    candidatos_json: list[AutomationCandidateJSON] = Field(
+        default_factory=list,
+        description="Automações da Entrega 2 (JSON) — usado no modo both."
+    )
+    candidatos_natural: list[AutomationCandidateJSON] = Field(
+        default_factory=list,
+        description="Automações da Entrega 1 (natural) — usado no modo both."
+    )
 
     # Controle de validação e reparo
     erros_validacao: list[str] = Field(

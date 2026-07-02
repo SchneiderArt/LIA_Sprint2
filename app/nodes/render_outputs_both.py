@@ -20,6 +20,7 @@ from datetime import datetime
 from pathlib import Path
 
 from app.schemas import EstadoGrafo
+from app.utils import config
 
 logger = logging.getLogger(__name__)
 
@@ -41,9 +42,12 @@ def render_outputs_both(
       ENTREGA 2 — Análise por JSON Estruturado
         [documento_final_json.md completo]
     """
-    saida_dir    = Path("saidas")
-    path_natural = saida_dir / "documento_final_natural.md"
-    path_json    = saida_dir / "documento_final_json.md"
+    # Artefato comparativo (both) — run-scoped via config. Lê os documentos
+    # individuais já gerados em artefatos/json/ e artefatos/natural/ e grava o
+    # combinado em artefatos/comparativo/.
+    saida_dir    = config.garantir(config.pasta_artefatos_abordagem(estado_json.run_id, config.COMPARATIVO))
+    path_natural = config.pasta_artefatos_abordagem(estado_json.run_id, config.NATURAL) / config.NOME_DOC_MD
+    path_json    = config.pasta_artefatos_abordagem(estado_json.run_id, config.JSON) / config.NOME_DOC_MD
 
     data_analise  = datetime.now().strftime("%d/%m/%Y %H:%M")
     run_id        = estado_json.run_id
@@ -87,14 +91,14 @@ def render_outputs_both(
 
     combinado = cabecalho + separador + secao_natural + separador + secao_json
 
-    md_path = saida_dir / "documento_final.md"
+    md_path = saida_dir / config.NOME_DOC_MD
     md_path.write_text(combinado, encoding="utf-8")
     logger.info("documento_final.md (both) salvo — %d chars", len(combinado))
 
     # PDF combinado
     try:
         from app.render_pdf import gerar_pdf
-        pdf_saida = saida_dir / "documento_final.pdf"
+        pdf_saida = saida_dir / config.NOME_DOC_PDF
         gerar_pdf(
             caminho_markdown=md_path,
             caminho_pdf=pdf_saida,
@@ -128,7 +132,7 @@ def render_outputs_both(
                 "tentativas_reparo": estado_json.tentativas_reparo,
             },
         }
-        audit_path = saida_dir / "auditoria_both.json"
+        audit_path = saida_dir / config.NOME_AUDITORIA
         audit_path.write_text(json.dumps(auditoria, ensure_ascii=False, indent=2), encoding="utf-8")
         logger.info("auditoria_both.json salvo.")
     except Exception as exc:

@@ -15,6 +15,7 @@ from pathlib import Path
 
 from app.prompts import montar_contexto_json
 from app.schemas import EstadoGrafo
+from app.utils import config
 
 logger = logging.getLogger(__name__)
 
@@ -54,9 +55,8 @@ def build_prompt_context(estado: EstadoGrafo) -> EstadoGrafo:
         "build_prompt_context: contexto montado — %d chars", len(contexto)
     )
 
-    # Salvar prompt para auditoria (seção 8.1: "prompt usado" deve ser salvo)
-    saida_dir = Path("saidas/intermediarios")
-    saida_dir.mkdir(parents=True, exist_ok=True)
+    # Salvar prompt para auditoria (Entrega 2 / JSON) — run-scoped via config
+    saida_dir = config.garantir(config.pasta_intermediarios(estado.run_id, config.JSON))
     saida_path = saida_dir / "prompt_usado.txt"
 
     try:
